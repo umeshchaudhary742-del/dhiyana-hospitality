@@ -1,70 +1,112 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const menu = [
-  {
-    day: "Monday",
-    meals: [
-      { name: "Breakfast", items: "Poha • Tea • Banana" },
-      { name: "Lunch", items: "Dal Tadka • Rice • Roti • Salad" },
-      { name: "Dinner", items: "Paneer Masala • Dal • Rice • Roti" },
-    ],
+type Meal = {
+  breakfast: string;
+  lunch: string;
+  snacks: string;
+  dinner: string;
+};
+
+const weeklyMenu: Record<string, Meal> = {
+  Monday: {
+    breakfast: "Idli Sambhar / Medu Vada",
+    lunch: "Chole Masala, Puri, Rice, Dal, Salad",
+    snacks: "Methi Gota",
+    dinner: "Raviya Masala, Roti, Rice, Dal, Salad",
   },
-  {
-    day: "Tuesday",
-    meals: [
-      { name: "Breakfast", items: "Idli • Sambar • Tea" },
-      { name: "Lunch", items: "Rajma • Rice • Roti • Salad" },
-      { name: "Dinner", items: "Mix Veg • Dal • Rice • Roti" },
-    ],
+  Tuesday: {
+    breakfast: "Usal-Poha / Sev Poha",
+    lunch: "Paneer Mushroom Masala, Roti, Rice, Dal, Salad",
+    snacks: "Gol Gappa",
+    dinner: "Gawarfali, Roti, Rice, Dal, Salad",
   },
-  {
-    day: "Wednesday",
-    meals: [
-      { name: "Breakfast", items: "Paratha • Curd • Tea" },
-      { name: "Lunch", items: "Chole • Rice • Roti • Salad" },
-      { name: "Dinner", items: "Paneer Bhurji • Dal • Rice • Roti" },
-    ],
+  Wednesday: {
+    breakfast: "Aloo Puri",
+    lunch: "Bhindi Masala, Roti, Rice, Dal, Salad",
+    snacks: "Samosa",
+    dinner: "Chole Masala, Roti, Rice, Dal, Salad",
   },
-  {
-    day: "Thursday",
-    meals: [
-      { name: "Breakfast", items: "Upma • Tea • Fruit" },
-      { name: "Lunch", items: "Dal • Jeera Rice • Roti • Salad" },
-      { name: "Dinner", items: "Veg Pulao • Raita • Dal • Roti" },
-    ],
+  Thursday: {
+    breakfast: "Aloo Paratha",
+    lunch: "Soya Chunks, Roti, Rice, Dal, Salad",
+    snacks: "Sweet Corn / Pasta",
+    dinner: "Mix Veg, Roti, Rice, Dal, Salad",
   },
-  {
-    day: "Friday",
-    meals: [
-      { name: "Breakfast", items: "Aloo Paratha • Curd • Tea" },
-      { name: "Lunch", items: "Kadhi • Rice • Roti • Salad" },
-      { name: "Dinner", items: "Paneer Curry • Dal • Rice • Roti" },
-    ],
+  Friday: {
+    breakfast: "Thepla-Achaar",
+    lunch: "Malai Kofta, Roti, Rice, Dal, Salad",
+    snacks: "Grilled Sandwich / Maggi",
+    dinner: "Kadi, Roti, Rice, Salad",
   },
-  {
-    day: "Saturday",
-    meals: [
-      { name: "Breakfast", items: "Dosa • Sambar • Chutney" },
-      { name: "Lunch", items: "Chole • Rice • Roti • Salad" },
-      { name: "Dinner", items: "Veg Biryani • Raita • Dal" },
-    ],
+  Saturday: {
+    breakfast: "Dosa / Upma",
+    lunch: "Kadhai Paneer, Roti, Rice, Dal, Salad",
+    snacks: "Mix Bhajiya",
+    dinner: "Fulawar, Roti, Rice, Dal, Salad",
   },
-  {
-    day: "Sunday",
-    meals: [
-      { name: "Breakfast", items: "Puri • Aloo Sabzi • Tea" },
-      { name: "Lunch", items: "Special Thali • Rice • Roti • Sweet" },
-      { name: "Dinner", items: "Special Dinner • Dal • Rice • Roti" },
-    ],
+  Sunday: {
+    breakfast: "Batata Poha / Sandwich / Dhokla",
+    lunch: "Rajma Masala, Roti, Rice, Dal, Salad",
+    snacks: "Toast",
+    dinner: "Pav-Bhaji, Roti, Rice, Salad",
   },
+};
+
+const days = Object.keys(weeklyMenu);
+
+const committeePhD = [
+  "Umesh Chaudhary",
+  "Rohit Saini",
+  "LN Dhakd",
+  "Sai Eswar",
+  "Jourawar Singh",
+];
+
+const committeeMS = [
+  "Jantin Katiyar",
+  "Tanmay Patil",
+  "Ayush Chandra",
+  "Harsh Patel",
+  "Bhagyashree Rane",
+  "Sakshi Pawar",
+  "Yash Patel",
+  "Aniket Roy",
+  "Vanshika Meshram",
 ];
 
 export default function Home() {
-  const [active, setActive] = useState("home");
-  const [message, setMessage] = useState("");
+  const [activeSection, setActiveSection] = useState("home");
+  const [selectedDay, setSelectedDay] = useState("Monday");
   const [rating, setRating] = useState(0);
+  const [feedbackMeal, setFeedbackMeal] = useState("Lunch");
+  const [feedbackComments, setFeedbackComments] = useState("");
+  const [suggestion, setSuggestion] = useState("");
+  const [message, setMessage] = useState("");
+
+  const todayName = useMemo(() => {
+    const day = new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+    });
+
+    return weeklyMenu[day] ? day : "Monday";
+  }, []);
+
+  const todayMeal = weeklyMenu[todayName];
+
+  function scrollToSection(id: string) {
+    setActiveSection(id);
+
+    const element = document.getElementById(id);
+
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }
 
   function showMessage(text: string) {
     setMessage(text);
@@ -74,464 +116,635 @@ export default function Home() {
     }, 3000);
   }
 
+  function submitRating() {
+    if (rating === 0) {
+      showMessage("Please select a rating first.");
+      return;
+    }
+
+    showMessage(
+      `Thank you! Your ${rating}/5 ${feedbackMeal.toLowerCase()} rating was submitted.`
+    );
+
+    setRating(0);
+    setFeedbackComments("");
+  }
+
+  function submitSuggestion() {
+    if (!suggestion.trim()) {
+      showMessage("Please enter your suggestion.");
+      return;
+    }
+
+    showMessage("Thank you! Your suggestion has been submitted.");
+    setSuggestion("");
+  }
+
   return (
     <main className="min-h-screen bg-[#f7f8f4] text-gray-900">
 
-      {/* HEADER */}
-      <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+      {/* =========================================================
+          HEADER
+      ========================================================= */}
+      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
 
-          {/* BRAND */}
-          <div className="flex items-center gap-3">
-
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-800 font-bold text-white">
+          {/* Logo / Brand */}
+          <button
+            onClick={() => scrollToSection("home")}
+            className="flex items-center gap-3 text-left"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-800 font-bold text-white shadow-sm">
               DH
             </div>
 
             <div>
               <h1 className="text-lg font-bold leading-tight">
-                Dhiyana Hospitality
+                NIPER-A MESS
               </h1>
 
-              <p className="text-sm font-bold text-green-800">
-                NIPER-A
+              <p className="text-sm font-semibold text-green-800">
+                Student Mess Portal
               </p>
 
               <p className="text-xs text-gray-500">
-                Student Mess Portal
+                NIPER-A
               </p>
             </div>
+          </button>
 
-          </div>
-
-          {/* DESKTOP NAVIGATION */}
-          <nav className="hidden gap-1 md:flex">
-
+          {/* Desktop Navigation */}
+          <nav className="hidden items-center gap-1 md:flex">
             {[
               ["home", "Home"],
               ["menu", "Menu"],
-              ["vote", "Vote"],
+              ["committee", "Committee"],
               ["suggest", "Suggest"],
               ["feedback", "Feedback"],
             ].map(([id, label]) => (
-
               <button
                 key={id}
-                onClick={() => setActive(id)}
-                className={`rounded-lg px-4 py-2 text-sm font-medium ${
-                  active === id
-                    ? "bg-green-100 text-green-800"
-                    : "text-gray-600 hover:bg-gray-100"
+                onClick={() => scrollToSection(id)}
+                className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                  activeSection === id
+                    ? "bg-green-100 text-green-900"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                 }`}
               >
                 {label}
               </button>
-
             ))}
-
           </nav>
         </div>
 
-        {/* MOBILE NAVIGATION */}
-        <div className="flex gap-2 overflow-x-auto border-t px-4 py-2 md:hidden">
-
-          {[
-            ["home", "Home"],
-            ["menu", "Menu"],
-            ["vote", "Vote"],
-            ["suggest", "Suggest"],
-            ["feedback", "Feedback"],
-          ].map(([id, label]) => (
-
-            <button
-              key={id}
-              onClick={() => setActive(id)}
-              className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm ${
-                active === id
-                  ? "bg-green-800 text-white"
-                  : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {label}
-            </button>
-
-          ))}
-
+        {/* Mobile Navigation */}
+        <div className="border-t border-gray-100 px-4 py-2 md:hidden">
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {[
+              ["home", "Home"],
+              ["menu", "Menu"],
+              ["committee", "Committee"],
+              ["suggest", "Suggest"],
+              ["feedback", "Feedback"],
+            ].map(([id, label]) => (
+              <button
+                key={id}
+                onClick={() => scrollToSection(id)}
+                className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium ${
+                  activeSection === id
+                    ? "bg-green-100 text-green-900"
+                    : "text-gray-600"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
-      {/* SUCCESS MESSAGE */}
+      {/* =========================================================
+          TEMPORARY MESSAGE
+      ========================================================= */}
       {message && (
-        <div className="fixed right-5 top-24 z-50 rounded-xl bg-green-800 px-5 py-3 text-sm font-medium text-white shadow-lg">
+        <div className="fixed left-1/2 top-24 z-[100] -translate-x-1/2 rounded-xl bg-green-800 px-6 py-3 text-sm font-semibold text-white shadow-xl">
           {message}
         </div>
       )}
 
-      {/* HOME PAGE */}
-      {active === "home" && (
+      {/* =========================================================
+          HOME
+      ========================================================= */}
+      <section
+        id="home"
+        className="scroll-mt-32 border-b border-gray-200"
+      >
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-2 lg:items-center">
 
-        <section className="mx-auto grid max-w-6xl gap-10 px-5 py-16 md:grid-cols-2 md:py-24">
-
+          {/* Left */}
           <div>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-900">
+              🍽️ NIPER-A Student Mess
+            </div>
 
-            <span className="inline-block rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-800">
-              🍽️ NIPER-A Student Mess Portal
-            </span>
-
-            <h2 className="mt-6 text-5xl font-bold leading-tight tracking-tight md:text-6xl">
-              Better food starts with your feedback.
+            <h2 className="max-w-3xl text-5xl font-bold leading-tight tracking-tight text-gray-950 md:text-6xl">
+              Better food starts
+              <br />
+              with your feedback.
             </h2>
 
-            <p className="mt-6 max-w-xl text-lg leading-8 text-gray-600">
-              Check the menu, vote for changes, suggest dishes
-              and tell the Dhiyana Hospitality team what you think.
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600">
+              Check the weekly menu, rate your meals, suggest new dishes,
+              and help the NIPER-A MESS committee improve the dining
+              experience.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-
               <button
-                onClick={() => setActive("menu")}
-                className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white hover:bg-green-900"
+                onClick={() => scrollToSection("menu")}
+                className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-green-900"
               >
                 View Menu
               </button>
 
               <button
-                onClick={() => setActive("feedback")}
-                className="rounded-xl border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50"
+                onClick={() => scrollToSection("feedback")}
+                className="rounded-xl border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-900 transition hover:bg-gray-50"
               >
                 Give Feedback
               </button>
-
             </div>
           </div>
 
-          {/* TODAY'S MENU CARD */}
-          <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
-
-            <p className="text-xs font-bold tracking-widest text-gray-500">
-              TODAY'S LUNCH
+          {/* Today's Meal */}
+          <div className="rounded-3xl border border-gray-200 bg-white p-7 shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+              Today&apos;s Menu
             </p>
 
-            <div className="mt-5 text-5xl">
-              🍛
+            <div className="mt-5 flex items-start gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 text-3xl">
+                🍛
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-green-800">
+                  {todayName}
+                </p>
+
+                <h3 className="mt-1 text-2xl font-bold">
+                  {todayMeal.lunch}
+                </h3>
+              </div>
             </div>
 
-            <h3 className="mt-4 text-2xl font-bold">
-              Dal Tadka
-            </h3>
+            <div className="mt-7 grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-[#f7f8f4] p-4">
+                <p className="text-xs font-semibold uppercase text-gray-500">
+                  Breakfast
+                </p>
+                <p className="mt-2 text-sm font-medium">
+                  {todayMeal.breakfast}
+                </p>
+              </div>
 
-            <p className="mt-3 text-gray-600">
-              Rice • Roti • Salad • Dal Tadka
-            </p>
+              <div className="rounded-xl bg-[#f7f8f4] p-4">
+                <p className="text-xs font-semibold uppercase text-gray-500">
+                  Snacks
+                </p>
+                <p className="mt-2 text-sm font-medium">
+                  {todayMeal.snacks}
+                </p>
+              </div>
+            </div>
 
             <button
-              onClick={() => setActive("feedback")}
-              className="mt-7 w-full rounded-xl bg-green-50 py-3 font-semibold text-green-800"
+              onClick={() => scrollToSection("feedback")}
+              className="mt-6 w-full rounded-xl bg-green-50 py-3 font-semibold text-green-900 transition hover:bg-green-100"
             >
-              ⭐ Rate Today's Meal
+              ⭐ Rate Today&apos;s Meal
             </button>
+          </div>
+        </div>
+      </section>
 
+      {/* =========================================================
+          MENU
+      ========================================================= */}
+      <section
+        id="menu"
+        className="scroll-mt-32 border-b border-gray-200 bg-white"
+      >
+        <div className="mx-auto max-w-7xl px-5 py-20">
+
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider text-green-800">
+              Weekly Schedule
+            </p>
+
+            <h2 className="mt-2 text-4xl font-bold text-gray-950">
+              NIPER-A MESS Menu
+            </h2>
+
+            <p className="mx-auto mt-3 max-w-2xl text-gray-600">
+              Check breakfast, lunch, snacks and dinner for every day
+              of the week.
+            </p>
           </div>
 
-        </section>
-      )}
-
-      {/* WEEKLY MENU */}
-      {active === "menu" && (
-
-        <section className="mx-auto max-w-5xl px-5 py-14">
-
-          <h2 className="text-4xl font-bold">
-            📅 Weekly Menu
-          </h2>
-
-          <p className="mt-2 text-gray-600">
-            View the proposed weekly mess menu.
-          </p>
-
-          <div className="mt-8 space-y-5">
-
-            {menu.map((day) => (
-
-              <div
-                key={day.day}
-                className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200"
+          {/* Day Buttons */}
+          <div className="mt-10 flex gap-2 overflow-x-auto pb-2">
+            {days.map((day) => (
+              <button
+                key={day}
+                onClick={() => setSelectedDay(day)}
+                className={`whitespace-nowrap rounded-xl px-5 py-3 text-sm font-semibold transition ${
+                  selectedDay === day
+                    ? "bg-green-800 text-white shadow-sm"
+                    : "border border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100"
+                }`}
               >
+                {day}
+              </button>
+            ))}
+          </div>
 
-                <h3 className="text-xl font-bold text-green-800">
-                  {day.day}
+          {/* Selected Day Cards */}
+          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+
+            <div className="rounded-2xl border border-gray-200 bg-[#f7f8f4] p-6">
+              <div className="text-2xl">🌅</div>
+              <p className="mt-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                Breakfast
+              </p>
+              <h3 className="mt-2 font-bold text-gray-950">
+                {weeklyMenu[selectedDay].breakfast}
+              </h3>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-[#f7f8f4] p-6">
+              <div className="text-2xl">🍛</div>
+              <p className="mt-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                Lunch
+              </p>
+              <h3 className="mt-2 font-bold text-gray-950">
+                {weeklyMenu[selectedDay].lunch}
+              </h3>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-[#f7f8f4] p-6">
+              <div className="text-2xl">🥪</div>
+              <p className="mt-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                Snacks
+              </p>
+              <h3 className="mt-2 font-bold text-gray-950">
+                {weeklyMenu[selectedDay].snacks}
+              </h3>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-[#f7f8f4] p-6">
+              <div className="text-2xl">🌙</div>
+              <p className="mt-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                Dinner
+              </p>
+              <h3 className="mt-2 font-bold text-gray-950">
+                {weeklyMenu[selectedDay].dinner}
+              </h3>
+            </div>
+          </div>
+
+          {/* Complete Weekly Table */}
+          <div className="mt-12 overflow-hidden rounded-2xl border border-gray-200">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[950px] border-collapse bg-white">
+                <thead>
+                  <tr className="bg-green-800 text-left text-sm text-white">
+                    <th className="px-5 py-4 font-semibold">Day</th>
+                    <th className="px-5 py-4 font-semibold">Breakfast</th>
+                    <th className="px-5 py-4 font-semibold">Lunch</th>
+                    <th className="px-5 py-4 font-semibold">Snacks</th>
+                    <th className="px-5 py-4 font-semibold">Dinner</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {days.map((day, index) => (
+                    <tr
+                      key={day}
+                      className={`border-t border-gray-200 ${
+                        index % 2 === 0
+                          ? "bg-white"
+                          : "bg-[#f7f8f4]"
+                      }`}
+                    >
+                      <td className="px-5 py-5 font-bold text-green-900">
+                        {day}
+                      </td>
+
+                      <td className="px-5 py-5 text-sm text-gray-700">
+                        {weeklyMenu[day].breakfast}
+                      </td>
+
+                      <td className="px-5 py-5 text-sm text-gray-700">
+                        {weeklyMenu[day].lunch}
+                      </td>
+
+                      <td className="px-5 py-5 text-sm text-gray-700">
+                        {weeklyMenu[day].snacks}
+                      </td>
+
+                      <td className="px-5 py-5 text-sm text-gray-700">
+                        {weeklyMenu[day].dinner}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* =========================================================
+          COMMITTEE
+      ========================================================= */}
+      <section
+        id="committee"
+        className="scroll-mt-32 border-b border-gray-200"
+      >
+        <div className="mx-auto max-w-7xl px-5 py-20">
+
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider text-green-800">
+              Student Representatives
+            </p>
+
+            <h2 className="mt-2 text-4xl font-bold text-gray-950">
+              Mess Committee Members
+            </h2>
+
+            <p className="mx-auto mt-3 max-w-2xl text-gray-600">
+              Student representatives working to improve the
+              NIPER-A MESS experience.
+            </p>
+          </div>
+
+          {/* PhD */}
+          <div className="mt-12">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-xl">
+                🎓
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-bold">
+                  PhD Representatives
                 </h3>
 
-                <div className="mt-4 grid gap-3 md:grid-cols-3">
-
-                  {day.meals.map((meal) => (
-
-                    <div
-                      key={meal.name}
-                      className="rounded-xl bg-gray-50 p-4"
-                    >
-
-                      <p className="font-semibold">
-                        {meal.name}
-                      </p>
-
-                      <p className="mt-2 text-sm leading-6 text-gray-600">
-                        {meal.items}
-                      </p>
-
-                    </div>
-
-                  ))}
-
-                </div>
-
+                <p className="text-sm text-gray-500">
+                  Mess Committee
+                </p>
               </div>
+            </div>
 
-            ))}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              {committeePhD.map((name) => (
+                <div
+                  key={name}
+                  className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-800 text-lg font-bold text-white">
+                    {name.charAt(0)}
+                  </div>
 
+                  <h4 className="mt-4 font-semibold text-gray-900">
+                    {name}
+                  </h4>
+
+                  <p className="mt-1 text-sm text-green-800">
+                    PhD
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
-        </section>
-      )}
-
-      {/* VOTING */}
-      {active === "vote" && (
-
-        <section className="mx-auto max-w-3xl px-5 py-14">
-
-          <h2 className="text-4xl font-bold">
-            🗳️ Vote on the Menu
-          </h2>
-
-          <p className="mt-2 text-gray-600">
-            Tell us which dishes you want to keep or change.
-          </p>
-
-          <div className="mt-8 space-y-4">
-
-            {[
-              "Paneer Masala",
-              "Veg Biryani",
-              "Masala Dosa",
-              "Chole Bhature",
-              "Rajma Rice",
-              "Pav Bhaji",
-            ].map((dish) => (
-
-              <div
-                key={dish}
-                className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200 md:flex md:items-center md:justify-between"
-              >
-
-                <strong>
-                  {dish}
-                </strong>
-
-                <div className="mt-4 flex flex-wrap gap-2 md:mt-0">
-
-                  <button
-                    onClick={() =>
-                      showMessage("Your vote was recorded 👍")
-                    }
-                    className="rounded-lg bg-green-100 px-3 py-2 text-sm font-medium text-green-800"
-                  >
-                    👍 Keep
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      showMessage("Change request recorded 🔄")
-                    }
-                    className="rounded-lg bg-yellow-100 px-3 py-2 text-sm font-medium text-yellow-800"
-                  >
-                    🔄 Change
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      showMessage("Your feedback was recorded 👎")
-                    }
-                    className="rounded-lg bg-red-100 px-3 py-2 text-sm font-medium text-red-800"
-                  >
-                    👎 Replace
-                  </button>
-
-                </div>
-
+          {/* MS 2nd Year */}
+          <div className="mt-14">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-xl">
+                🎓
               </div>
 
-            ))}
+              <div>
+                <h3 className="text-2xl font-bold">
+                  MS 2nd Year Representatives
+                </h3>
 
+                <p className="text-sm text-gray-500">
+                  Mess Committee
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {committeeMS.map((name) => (
+                <div
+                  key={name}
+                  className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-800 text-lg font-bold text-white">
+                    {name.charAt(0)}
+                  </div>
+
+                  <h4 className="mt-4 font-semibold text-gray-900">
+                    {name}
+                  </h4>
+
+                  <p className="mt-1 text-sm text-green-800">
+                    MS 2nd Year
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
-        </section>
-      )}
+        </div>
+      </section>
 
-      {/* DISH SUGGESTION */}
-      {active === "suggest" && (
+      {/* =========================================================
+          SUGGESTION
+      ========================================================= */}
+      <section
+        id="suggest"
+        className="scroll-mt-32 border-b border-gray-200 bg-white"
+      >
+        <div className="mx-auto max-w-4xl px-5 py-20">
 
-        <section className="mx-auto max-w-2xl px-5 py-14">
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider text-green-800">
+              Have an idea?
+            </p>
 
-          <h2 className="text-4xl font-bold">
-            💡 Suggest a Dish
-          </h2>
+            <h2 className="mt-2 text-4xl font-bold text-gray-950">
+              Suggest a Dish
+            </h2>
 
-          <p className="mt-2 text-gray-600">
-            Tell us what you would like to see in the mess.
-          </p>
+            <p className="mt-3 text-gray-600">
+              Tell the mess committee what you would like to see
+              on the menu.
+            </p>
+          </div>
 
-          <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+          <div className="mt-10 rounded-3xl border border-gray-200 bg-[#f7f8f4] p-7">
 
-            <label className="block font-semibold">
-              Dish name
-            </label>
-
-            <input
-              className="mt-2 w-full rounded-xl border p-3 outline-none focus:border-green-700"
-              placeholder="Example: Veg Biryani"
-            />
-
-            <label className="mt-5 block font-semibold">
-              Meal
-            </label>
-
-            <select className="mt-2 w-full rounded-xl border bg-white p-3">
-
-              <option>Breakfast</option>
-              <option>Lunch</option>
-              <option>Snacks</option>
-              <option>Dinner</option>
-
-            </select>
-
-            <label className="mt-5 block font-semibold">
-              Reason / suggestion
+            <label className="text-sm font-semibold text-gray-800">
+              Your suggestion
             </label>
 
             <textarea
-              className="mt-2 min-h-28 w-full rounded-xl border p-3"
-              placeholder="Optional"
+              value={suggestion}
+              onChange={(e) => setSuggestion(e.target.value)}
+              placeholder="Example: Please add Pav Bhaji on Saturday..."
+              rows={5}
+              className="mt-3 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-100"
             />
 
             <button
-              onClick={() =>
-                showMessage(
-                  "Thank you! Your dish suggestion was submitted."
-                )
-              }
-              className="mt-5 w-full rounded-xl bg-green-800 py-3 font-semibold text-white hover:bg-green-900"
+              onClick={submitSuggestion}
+              className="mt-4 rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-900"
             >
               Submit Suggestion
             </button>
+          </div>
+        </div>
+      </section>
 
+      {/* =========================================================
+          FEEDBACK
+      ========================================================= */}
+      <section
+        id="feedback"
+        className="scroll-mt-32 border-b border-gray-200"
+      >
+        <div className="mx-auto max-w-4xl px-5 py-20">
+
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider text-green-800">
+              Your Voice Matters
+            </p>
+
+            <h2 className="mt-2 text-4xl font-bold text-gray-950">
+              Rate Your Meal
+            </h2>
+
+            <p className="mt-3 text-gray-600">
+              Your feedback helps the mess committee improve
+              food quality and variety.
+            </p>
           </div>
 
-        </section>
-      )}
+          <div className="mt-10 rounded-3xl border border-gray-200 bg-white p-7 shadow-sm">
 
-      {/* FEEDBACK */}
-      {active === "feedback" && (
-
-        <section className="mx-auto max-w-2xl px-5 py-14">
-
-          <h2 className="text-4xl font-bold">
-            ⭐ Rate Today's Food
-          </h2>
-
-          <p className="mt-2 text-gray-600">
-            Your feedback helps us improve the mess service.
-          </p>
-
-          <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-
-            <label className="block font-semibold">
+            {/* Meal selector */}
+            <label className="text-sm font-semibold text-gray-800">
               Meal
             </label>
 
-            <select className="mt-2 w-full rounded-xl border bg-white p-3">
-
-              <option>Breakfast</option>
-              <option>Lunch</option>
-              <option>Snacks</option>
-              <option>Dinner</option>
-
-            </select>
-
-            <label className="mt-6 block font-semibold">
-              Overall rating
-            </label>
-
-            <div className="mt-3 flex gap-2 text-3xl">
-
-              {[1, 2, 3, 4, 5].map((star) => (
-
-                <button
-                  key={star}
-                  onClick={() => setRating(star)}
-                  className={
-                    star <= rating
-                      ? "text-yellow-500"
-                      : "text-gray-300"
-                  }
-                >
-                  ★
-                </button>
-
-              ))}
-
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {["Breakfast", "Lunch", "Snacks", "Dinner"].map(
+                (meal) => (
+                  <button
+                    key={meal}
+                    onClick={() => setFeedbackMeal(meal)}
+                    className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                      feedbackMeal === meal
+                        ? "border-green-800 bg-green-800 text-white"
+                        : "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {meal}
+                  </button>
+                )
+              )}
             </div>
 
-            <p className="mt-2 text-sm text-gray-500">
-              {rating > 0
-                ? `${rating} out of 5`
-                : "Select a rating"}
-            </p>
+            {/* Rating */}
+            <div className="mt-8">
+              <p className="text-sm font-semibold text-gray-800">
+                Rating
+              </p>
 
-            <label className="mt-6 block font-semibold">
-              Comments
-            </label>
+              <div className="mt-4 flex gap-2">
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <button
+                    key={value}
+                    onClick={() => setRating(value)}
+                    aria-label={`Rate ${value} out of 5`}
+                    className={`text-4xl transition ${
+                      value <= rating
+                        ? "scale-110"
+                        : "opacity-30 hover:opacity-70"
+                    }`}
+                  >
+                    ⭐
+                  </button>
+                ))}
+              </div>
+            </div>
 
-            <textarea
-              className="mt-2 min-h-32 w-full rounded-xl border p-3"
-              placeholder="Taste, quality, quantity, variety..."
-            />
+            {/* Comments */}
+            <div className="mt-8">
+              <label className="text-sm font-semibold text-gray-800">
+                Comments
+              </label>
+
+              <textarea
+                value={feedbackComments}
+                onChange={(e) =>
+                  setFeedbackComments(e.target.value)
+                }
+                placeholder="Tell us what you think..."
+                rows={5}
+                className="mt-3 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-100"
+              />
+            </div>
 
             <button
-              onClick={() =>
-                showMessage(
-                  "Thank you! Your food feedback was submitted."
-                )
-              }
-              className="mt-5 w-full rounded-xl bg-green-800 py-3 font-semibold text-white hover:bg-green-900"
+              onClick={submitRating}
+              className="mt-5 w-full rounded-xl bg-green-800 py-3 font-semibold text-white transition hover:bg-green-900"
             >
               Submit Feedback
             </button>
+          </div>
+        </div>
+      </section>
 
+      {/* =========================================================
+          FOOTER
+      ========================================================= */}
+      <footer className="bg-white py-10 text-center">
+
+        <div className="mx-auto max-w-7xl px-5">
+
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-green-800 font-bold text-white">
+            DH
           </div>
 
-        </section>
-      )}
+          <p className="mt-4 font-bold text-gray-900">
+            NIPER-A MESS
+          </p>
 
-      {/* FOOTER */}
-      <footer className="border-t bg-white py-8 text-center text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500">
+            Student Mess Portal
+          </p>
 
-        <p className="font-semibold text-gray-700">
-          Dhiyana Hospitality
-        </p>
+          <p className="mt-5 text-xs text-gray-400">
+            © {new Date().getFullYear()} NIPER-A MESS
+          </p>
 
-        <p className="mt-1">
-          NIPER-A
-        </p>
-
-        <p className="mt-2">
-          Student Mess Portal
-        </p>
-
-        <p className="mt-3">
-          © {new Date().getFullYear()} Dhiyana Hospitality
-        </p>
-
+        </div>
       </footer>
 
     </main>
