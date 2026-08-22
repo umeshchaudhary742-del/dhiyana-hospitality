@@ -93,25 +93,62 @@ type MealName = "Breakfast" | "Lunch" | "Snacks" | "Dinner";
 
 const mealTimes = {
   weekday: [
-    { name: "Breakfast" as MealName, start: 8 * 60, end: 10 * 60 },
-    { name: "Lunch" as MealName, start: 12 * 60 + 30, end: 14 * 60 + 30 },
-    { name: "Snacks" as MealName, start: 16 * 60 + 30, end: 18 * 60 },
-    { name: "Dinner" as MealName, start: 19 * 60 + 30, end: 21 * 60 + 30 },
+    {
+      name: "Breakfast" as MealName,
+      start: 8 * 60,
+      end: 10 * 60,
+    },
+    {
+      name: "Lunch" as MealName,
+      start: 12 * 60 + 30,
+      end: 14 * 60 + 30,
+    },
+    {
+      name: "Snacks" as MealName,
+      start: 16 * 60 + 30,
+      end: 18 * 60,
+    },
+    {
+      name: "Dinner" as MealName,
+      start: 19 * 60 + 30,
+      end: 21 * 60 + 30,
+    },
   ],
+
   weekend: [
-    { name: "Breakfast" as MealName, start: 9 * 60, end: 11 * 60 },
-    { name: "Lunch" as MealName, start: 13 * 60, end: 15 * 60 },
-    { name: "Snacks" as MealName, start: 16 * 60 + 30, end: 18 * 60 },
-    { name: "Dinner" as MealName, start: 20 * 60, end: 21 * 60 + 30 },
+    {
+      name: "Breakfast" as MealName,
+      start: 9 * 60,
+      end: 11 * 60,
+    },
+    {
+      name: "Lunch" as MealName,
+      start: 13 * 60,
+      end: 15 * 60,
+    },
+    {
+      name: "Snacks" as MealName,
+      start: 16 * 60 + 30,
+      end: 18 * 60,
+    },
+    {
+      name: "Dinner" as MealName,
+      start: 20 * 60,
+      end: 21 * 60 + 30,
+    },
   ],
 };
 
-function getMenuForMeal(dayIndex: number, meal: MealName) {
+function getMenuForMeal(
+  dayIndex: number,
+  meal: MealName
+) {
   const day = weeklyMenu[dayIndex];
 
   if (meal === "Breakfast") return day.breakfast;
   if (meal === "Lunch") return day.lunch;
   if (meal === "Snacks") return day.snacks;
+
   return day.dinner;
 }
 
@@ -128,17 +165,22 @@ export default function Home() {
     const updateMeal = () => {
       const now = new Date();
 
-      const dayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
+      const dayIndex =
+        now.getDay() === 0
+          ? 6
+          : now.getDay() - 1;
 
       const isWeekend =
-        now.getDay() === 0 || now.getDay() === 6;
+        now.getDay() === 0 ||
+        now.getDay() === 6;
 
       const schedule = isWeekend
         ? mealTimes.weekend
         : mealTimes.weekday;
 
       const minutes =
-        now.getHours() * 60 + now.getMinutes();
+        now.getHours() * 60 +
+        now.getMinutes();
 
       const activeMeal = schedule.find(
         (meal) =>
@@ -149,9 +191,13 @@ export default function Home() {
       if (activeMeal) {
         setCurrentMeal({
           name: activeMeal.name,
-          food: getMenuForMeal(dayIndex, activeMeal.name),
+          food: getMenuForMeal(
+            dayIndex,
+            activeMeal.name
+          ),
           status: "Serving Now",
         });
+
         return;
       }
 
@@ -162,25 +208,35 @@ export default function Home() {
       if (upcoming) {
         setCurrentMeal({
           name: upcoming.name,
-          food: getMenuForMeal(dayIndex, upcoming.name),
+          food: getMenuForMeal(
+            dayIndex,
+            upcoming.name
+          ),
           status: "Upcoming Meal",
         });
+
         return;
       }
 
-      // After dinner: show tomorrow's breakfast
-      const tomorrowIndex = (dayIndex + 1) % 7;
+      const tomorrowIndex =
+        (dayIndex + 1) % 7;
 
       setCurrentMeal({
         name: "Breakfast",
-        food: getMenuForMeal(tomorrowIndex, "Breakfast"),
+        food: getMenuForMeal(
+          tomorrowIndex,
+          "Breakfast"
+        ),
         status: "Tomorrow's Breakfast",
       });
     };
 
     updateMeal();
 
-    const timer = setInterval(updateMeal, 60000);
+    const timer = setInterval(
+      updateMeal,
+      60000
+    );
 
     return () => clearInterval(timer);
   }, []);
@@ -188,11 +244,24 @@ export default function Home() {
   const goTo = (section: string) => {
     setActive(section);
 
-    document.getElementById(section)?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    document
+      .getElementById(section)
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
   };
+
+  const navItems = [
+    ["home", "Home"],
+    ["menu", "Menu"],
+    ["timings", "Timings"],
+    ["committee", "Committee"],
+    ["volunteer", "Volunteer"],
+    ["rules", "Rules"],
+    ["feedback", "Feedback"],
+    ["about", "About"],
+  ];
 
   return (
     <main className="min-h-screen bg-[#f7f8f4] text-gray-900">
@@ -200,6 +269,7 @@ export default function Home() {
       {/* ================= HEADER ================= */}
 
       <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
 
           <button
@@ -222,65 +292,64 @@ export default function Home() {
           </button>
 
           <nav className="hidden gap-1 md:flex">
-            {[
-              ["home", "Home"],
-              ["menu", "Menu"],
-              ["timings", "Timings"],
-              ["committee", "Committee"],
-              ["rules", "Rules"],
-              ["feedback", "Feedback"],
-              ["about", "About"],
-            ].map(([id, label]) => (
-              <button
-                key={id}
-                onClick={() => goTo(id)}
-                className={`rounded-lg px-3 py-2 text-sm font-medium ${
-                  active === id
-                    ? "bg-green-100 text-green-800"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+            {navItems.map(
+              ([id, label]) => (
+                <button
+                  key={id}
+                  onClick={() => goTo(id)}
+                  className={`rounded-lg px-3 py-2 text-sm font-medium ${
+                    active === id
+                      ? "bg-green-100 text-green-800"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  {label}
+                </button>
+              )
+            )}
           </nav>
+
         </div>
 
-        {/* MOBILE NAV */}
+        {/* MOBILE NAVIGATION */}
 
         <div className="overflow-x-auto border-t border-gray-100 md:hidden">
+
           <div className="flex min-w-max gap-2 px-4 py-2">
-            {[
-              ["home", "Home"],
-              ["menu", "Menu"],
-              ["timings", "Timings"],
-              ["committee", "Committee"],
-              ["rules", "Rules"],
-              ["feedback", "Feedback"],
-              ["about", "About"],
-            ].map(([id, label]) => (
-              <button
-                key={id}
-                onClick={() => goTo(id)}
-                className={`rounded-lg px-4 py-2 text-sm ${
-                  active === id
-                    ? "bg-green-100 text-green-800"
-                    : "text-gray-600"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+
+            {navItems.map(
+              ([id, label]) => (
+                <button
+                  key={id}
+                  onClick={() => goTo(id)}
+                  className={`rounded-lg px-4 py-2 text-sm ${
+                    active === id
+                      ? "bg-green-100 text-green-800"
+                      : "text-gray-600"
+                  }`}
+                >
+                  {label}
+                </button>
+              )
+            )}
+
           </div>
+
         </div>
+
       </header>
 
       {/* ================= HOME ================= */}
 
-      <section id="home" className="scroll-mt-32">
+      <section
+        id="home"
+        className="scroll-mt-32"
+      >
+
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 lg:grid-cols-2 lg:items-center lg:py-20">
 
           <div>
+
             <div className="mb-5 inline-flex rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-800">
               🍽️ NIPER-A Student Mess
             </div>
@@ -290,12 +359,14 @@ export default function Home() {
             </h2>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600">
-              Check today's meal, view the weekly menu, follow mess
-              timings and rules, and share your suggestions with the
-              NIPER-A MESS Committee.
+              Check today's meal, view the weekly menu,
+              follow mess timings and rules, volunteer
+              for the Mess Committee, and share your
+              suggestions.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
+
               <button
                 onClick={() => goTo("menu")}
                 className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white hover:bg-green-900"
@@ -309,7 +380,9 @@ export default function Home() {
               >
                 Give Feedback
               </button>
+
             </div>
+
           </div>
 
           {/* CURRENT / UPCOMING MEAL */}
@@ -317,13 +390,14 @@ export default function Home() {
           <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
 
             <p className="text-sm font-semibold uppercase tracking-widest text-gray-500">
-              Today's Meal
+              Current / Upcoming Meal
             </p>
 
             {currentMeal ? (
               <div className="mt-5 rounded-2xl bg-green-50 p-6">
 
                 <div className="flex items-center justify-between gap-4">
+
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-3xl shadow-sm">
                     🍛
                   </div>
@@ -331,6 +405,7 @@ export default function Home() {
                   <span className="rounded-full bg-green-800 px-4 py-2 text-xs font-bold text-white">
                     {currentMeal.status}
                   </span>
+
                 </div>
 
                 <p className="mt-6 text-sm font-semibold text-green-800">
@@ -347,6 +422,7 @@ export default function Home() {
                 >
                   ⭐ Rate / Give Feedback
                 </button>
+
               </div>
             ) : (
               <div className="mt-5 rounded-2xl bg-gray-50 p-6">
@@ -360,9 +436,11 @@ export default function Home() {
             >
               🕐 View Mess Timings
             </button>
+
           </div>
 
         </div>
+
       </section>
 
       {/* ================= MENU ================= */}
@@ -371,9 +449,11 @@ export default function Home() {
         id="menu"
         className="scroll-mt-32 border-t border-gray-200 bg-white py-16"
       >
+
         <div className="mx-auto max-w-7xl px-5">
 
           <div className="mb-10 text-center">
+
             <p className="text-sm font-semibold uppercase tracking-widest text-green-800">
               Weekly Schedule
             </p>
@@ -381,119 +461,172 @@ export default function Home() {
             <h2 className="mt-2 text-4xl font-bold">
               NIPER-A MESS Menu
             </h2>
+
           </div>
 
           <div className="hidden overflow-hidden rounded-2xl border border-gray-200 md:block">
+
             <div className="overflow-x-auto">
 
               <table className="w-full min-w-[1000px] border-collapse text-left">
 
                 <thead>
+
                   <tr className="bg-green-800 text-white">
-                    <th className="px-5 py-4">Day</th>
-                    <th className="px-5 py-4">Breakfast</th>
-                    <th className="px-5 py-4">Lunch</th>
-                    <th className="px-5 py-4">Snacks</th>
-                    <th className="px-5 py-4">Dinner</th>
+
+                    <th className="px-5 py-4">
+                      Day
+                    </th>
+
+                    <th className="px-5 py-4">
+                      Breakfast
+                    </th>
+
+                    <th className="px-5 py-4">
+                      Lunch
+                    </th>
+
+                    <th className="px-5 py-4">
+                      Snacks
+                    </th>
+
+                    <th className="px-5 py-4">
+                      Dinner
+                    </th>
+
                   </tr>
+
                 </thead>
 
                 <tbody>
-                  {weeklyMenu.map((item, index) => (
-                    <tr
-                      key={item.day}
-                      className={
-                        index % 2 === 0
-                          ? "bg-white"
-                          : "bg-gray-50"
-                      }
-                    >
-                      <td className="px-5 py-5 font-bold text-green-800">
-                        {item.day}
-                      </td>
 
-                      <td className="px-5 py-5">
-                        {item.breakfast}
-                      </td>
+                  {weeklyMenu.map(
+                    (item, index) => (
 
-                      <td className="px-5 py-5">
-                        {item.lunch}
-                      </td>
+                      <tr
+                        key={item.day}
+                        className={
+                          index % 2 === 0
+                            ? "bg-white"
+                            : "bg-gray-50"
+                        }
+                      >
 
-                      <td className="px-5 py-5">
-                        {item.snacks}
-                      </td>
+                        <td className="px-5 py-5 font-bold text-green-800">
+                          {item.day}
+                        </td>
 
-                      <td className="px-5 py-5">
-                        {item.dinner}
-                      </td>
-                    </tr>
-                  ))}
+                        <td className="px-5 py-5">
+                          {item.breakfast}
+                        </td>
+
+                        <td className="px-5 py-5">
+                          {item.lunch}
+                        </td>
+
+                        <td className="px-5 py-5">
+                          {item.snacks}
+                        </td>
+
+                        <td className="px-5 py-5">
+                          {item.dinner}
+                        </td>
+
+                      </tr>
+
+                    )
+                  )}
+
                 </tbody>
 
               </table>
+
             </div>
+
           </div>
 
           {/* MOBILE MENU */}
 
           <div className="space-y-5 md:hidden">
-            {weeklyMenu.map((item) => (
-              <div
-                key={item.day}
-                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-              >
-                <h3 className="text-xl font-bold text-green-800">
-                  {item.day}
-                </h3>
 
-                <div className="mt-4 space-y-4">
+            {weeklyMenu.map(
+              (item) => (
 
-                  <div>
-                    <p className="text-xs font-bold uppercase text-gray-400">
-                      Breakfast
-                    </p>
-                    <p className="mt-1">{item.breakfast}</p>
-                  </div>
+                <div
+                  key={item.day}
+                  className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+                >
 
-                  <div>
-                    <p className="text-xs font-bold uppercase text-gray-400">
-                      Lunch
-                    </p>
-                    <p className="mt-1">{item.lunch}</p>
-                  </div>
+                  <h3 className="text-xl font-bold text-green-800">
+                    {item.day}
+                  </h3>
 
-                  <div>
-                    <p className="text-xs font-bold uppercase text-gray-400">
-                      Snacks
-                    </p>
-                    <p className="mt-1">{item.snacks}</p>
-                  </div>
+                  <div className="mt-4 space-y-4">
 
-                  <div>
-                    <p className="text-xs font-bold uppercase text-gray-400">
-                      Dinner
-                    </p>
-                    <p className="mt-1">{item.dinner}</p>
+                    <div>
+                      <p className="text-xs font-bold uppercase text-gray-400">
+                        Breakfast
+                      </p>
+
+                      <p className="mt-1">
+                        {item.breakfast}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-bold uppercase text-gray-400">
+                        Lunch
+                      </p>
+
+                      <p className="mt-1">
+                        {item.lunch}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-bold uppercase text-gray-400">
+                        Snacks
+                      </p>
+
+                      <p className="mt-1">
+                        {item.snacks}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-bold uppercase text-gray-400">
+                        Dinner
+                      </p>
+
+                      <p className="mt-1">
+                        {item.dinner}
+                      </p>
+                    </div>
+
                   </div>
 
                 </div>
-              </div>
-            ))}
+
+              )
+            )}
+
           </div>
 
         </div>
+
       </section>
 
-      {/* ================= MESS TIMINGS ================= */}
+      {/* ================= TIMINGS ================= */}
 
       <section
         id="timings"
         className="scroll-mt-32 border-t border-gray-200 bg-[#f7f8f4] py-16"
       >
+
         <div className="mx-auto max-w-6xl px-5">
 
           <div className="mb-10 text-center">
+
             <p className="text-sm font-semibold uppercase tracking-widest text-green-800">
               1. Mess Timings
             </p>
@@ -502,69 +635,59 @@ export default function Home() {
               Meal Timings
             </h2>
 
-            <p className="mt-3 text-gray-600">
-              Please follow the prescribed mess timings.
-            </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2">
 
-            {/* WEEKDAYS */}
+            {[
+              ["Weekdays", weekdayTimings],
+              ["Weekends", weekendTimings],
+            ].map(
+              ([title, timings]) => (
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+                <div
+                  key={title as string}
+                  className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm"
+                >
 
-              <h3 className="text-2xl font-bold text-green-800">
-                Weekdays
-              </h3>
+                  <h3 className="text-2xl font-bold text-green-800">
+                    {title as string}
+                  </h3>
 
-              <div className="mt-6 space-y-4">
-                {weekdayTimings.map(([meal, time]) => (
-                  <div
-                    key={meal}
-                    className="flex items-center justify-between rounded-xl bg-gray-50 px-5 py-4"
-                  >
-                    <span className="font-semibold">
-                      {meal}
-                    </span>
+                  <div className="mt-6 space-y-4">
 
-                    <span className="font-medium text-green-800">
-                      {time}
-                    </span>
+                    {(timings as string[][]).map(
+                      ([meal, time]) => (
+
+                        <div
+                          key={meal}
+                          className="flex items-center justify-between rounded-xl bg-gray-50 px-5 py-4"
+                        >
+
+                          <span className="font-semibold">
+                            {meal}
+                          </span>
+
+                          <span className="font-medium text-green-800">
+                            {time}
+                          </span>
+
+                        </div>
+
+                      )
+                    )}
+
                   </div>
-                ))}
-              </div>
 
-            </div>
+                </div>
 
-            {/* WEEKENDS */}
-
-            <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
-
-              <h3 className="text-2xl font-bold text-green-800">
-                Weekends
-              </h3>
-
-              <div className="mt-6 space-y-4">
-                {weekendTimings.map(([meal, time]) => (
-                  <div
-                    key={meal}
-                    className="flex items-center justify-between rounded-xl bg-gray-50 px-5 py-4"
-                  >
-                    <span className="font-semibold">
-                      {meal}
-                    </span>
-
-                    <span className="font-medium text-green-800">
-                      {time}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-            </div>
+              )
+            )}
 
           </div>
+
         </div>
+
       </section>
 
       {/* ================= COMMITTEE ================= */}
@@ -573,9 +696,11 @@ export default function Home() {
         id="committee"
         className="scroll-mt-32 border-t border-gray-200 bg-white py-16"
       >
+
         <div className="mx-auto max-w-7xl px-5">
 
           <div className="mb-10 text-center">
+
             <p className="text-sm font-semibold uppercase tracking-widest text-green-800">
               Student Representatives
             </p>
@@ -583,6 +708,7 @@ export default function Home() {
             <h2 className="mt-2 text-4xl font-bold">
               Mess Committee Members
             </h2>
+
           </div>
 
           <div className="grid gap-8 lg:grid-cols-2">
@@ -592,32 +718,40 @@ export default function Home() {
             <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
 
               <div className="mb-6 flex items-center gap-4">
+
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-800 font-bold text-white">
                   PhD
                 </div>
 
-                <div>
-                  <h3 className="text-xl font-bold">
-                    PhD Representatives
-                  </h3>
-                </div>
+                <h3 className="text-xl font-bold">
+                  PhD Representatives
+                </h3>
+
               </div>
 
               <div className="space-y-3">
-                {phdMembers.map((member, index) => (
-                  <div
-                    key={member}
-                    className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3"
-                  >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-800">
-                      {index + 1}
-                    </span>
 
-                    <span className="font-medium">
-                      {member}
-                    </span>
-                  </div>
-                ))}
+                {phdMembers.map(
+                  (member, index) => (
+
+                    <div
+                      key={member}
+                      className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3"
+                    >
+
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-800">
+                        {index + 1}
+                      </span>
+
+                      <span className="font-medium">
+                        {member}
+                      </span>
+
+                    </div>
+
+                  )
+                )}
+
               </div>
 
             </div>
@@ -627,49 +761,122 @@ export default function Home() {
             <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
 
               <div className="mb-6 flex items-center gap-4">
+
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-800 font-bold text-white">
                   MS
                 </div>
 
-                <div>
-                  <h3 className="text-xl font-bold">
-                    MS 2nd Year Representatives
-                  </h3>
-                </div>
+                <h3 className="text-xl font-bold">
+                  MS 2nd Year Representatives
+                </h3>
+
               </div>
 
               <div className="space-y-3">
-                {msMembers.map((member, index) => (
-                  <div
-                    key={member}
-                    className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3"
-                  >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-800">
-                      {index + 1}
-                    </span>
 
-                    <span className="font-medium">
-                      {member}
-                    </span>
-                  </div>
-                ))}
+                {msMembers.map(
+                  (member, index) => (
+
+                    <div
+                      key={member}
+                      className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3"
+                    >
+
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-800">
+                        {index + 1}
+                      </span>
+
+                      <span className="font-medium">
+                        {member}
+                      </span>
+
+                    </div>
+
+                  )
+                )}
+
               </div>
 
             </div>
 
           </div>
+
         </div>
+
       </section>
 
-      {/* ================= RULES + FEES ================= */}
+      {/* ================= VOLUNTEER ================= */}
+
+      <section
+        id="volunteer"
+        className="scroll-mt-32 border-t border-gray-200 bg-green-50 py-16"
+      >
+
+        <div className="mx-auto max-w-5xl px-5">
+
+          <div className="mb-8 text-center">
+
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-800 text-2xl text-white">
+              🙋
+            </div>
+
+            <p className="mt-5 text-sm font-semibold uppercase tracking-widest text-green-800">
+              Volunteer With Us
+            </p>
+
+            <h2 className="mt-2 text-4xl font-bold">
+              Join the Mess Committee
+            </h2>
+
+            <p className="mx-auto mt-4 max-w-3xl text-gray-700">
+              We welcome responsible, active, and vocal students who
+              genuinely want to contribute to the NIPER-A MESS Committee
+              by helping maintain mess activities, discipline, cleanliness,
+              student coordination, and food quality.
+            </p>
+
+            <p className="mx-auto mt-3 max-w-3xl font-medium text-gray-700">
+              This is a service opportunity, not for personal benefits or
+              individual interests, but for the welfare of the entire
+              student community.
+            </p>
+
+          </div>
+
+          {/* VOLUNTEER GOOGLE FORM */}
+
+          <div className="overflow-hidden rounded-2xl border border-green-200 bg-white shadow-sm">
+
+            <iframe
+              src="https://docs.google.com/forms/d/e/1FAIpQLSfl0npHzDmy60NKfD4UfNK1iZLgY3syDP4_OH4u7u5H35DK3g/viewform?embedded=true"
+              width="100%"
+              height="850"
+              frameBorder="0"
+              marginHeight={0}
+              marginWidth={0}
+              title="NIPER-A MESS Committee Volunteer Registration"
+              className="w-full"
+            >
+              Loading volunteer form…
+            </iframe>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* ================= RULES & FEES ================= */}
 
       <section
         id="rules"
         className="scroll-mt-32 border-t border-gray-200 bg-[#f7f8f4] py-16"
       >
+
         <div className="mx-auto max-w-6xl px-5">
 
           <div className="mb-10 text-center">
+
             <p className="text-sm font-semibold uppercase tracking-widest text-green-800">
               Mess Guidelines
             </p>
@@ -677,9 +884,8 @@ export default function Home() {
             <h2 className="mt-2 text-4xl font-bold">
               Mess Discipline & Fees
             </h2>
-          </div>
 
-          {/* DISCIPLINE */}
+          </div>
 
           <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
 
@@ -702,22 +908,29 @@ export default function Home() {
                 "Do not occupy seats unnecessarily during busy meal times.",
                 "Any serious or repeated indiscipline should be reported to the mess in-charge/warden.",
                 "Everyone is expected to maintain a clean, respectful, and disciplined environment in the mess.",
-              ].map((rule, index) => (
-                <li
-                  key={index}
-                  className="flex gap-3 rounded-xl bg-gray-50 p-4"
-                >
-                  <span className="font-bold text-green-800">
-                    {index + 1}.
-                  </span>
+              ].map(
+                (rule, index) => (
 
-                  <span className="text-gray-700">
-                    {rule}
-                  </span>
-                </li>
-              ))}
+                  <li
+                    key={index}
+                    className="flex gap-3 rounded-xl bg-gray-50 p-4"
+                  >
+
+                    <span className="font-bold text-green-800">
+                      {index + 1}.
+                    </span>
+
+                    <span className="text-gray-700">
+                      {rule}
+                    </span>
+
+                  </li>
+
+                )
+              )}
 
             </ul>
+
           </div>
 
           {/* FEES */}
@@ -731,6 +944,7 @@ export default function Home() {
             <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
               <div>
+
                 <h3 className="text-3xl font-bold text-gray-950">
                   ₹4,400
                 </h3>
@@ -738,19 +952,22 @@ export default function Home() {
                 <p className="mt-1 font-medium text-gray-600">
                   Monthly Mess Fee per Student
                 </p>
+
               </div>
 
               <div className="max-w-xl text-gray-700">
                 Students are requested to pay the mess fee as early as
-                possible after receiving their stipend.
-                Timely payment helps ensure the smooth and uninterrupted
-                functioning of the mess.
+                possible after receiving their stipend. Timely payment
+                helps ensure the smooth and uninterrupted functioning
+                of the mess.
               </div>
 
             </div>
+
           </div>
 
         </div>
+
       </section>
 
       {/* ================= FEEDBACK ================= */}
@@ -759,21 +976,27 @@ export default function Home() {
         id="feedback"
         className="scroll-mt-32 border-t border-gray-200 bg-white py-16"
       >
+
         <div className="mx-auto max-w-5xl px-5">
 
           <div className="mb-8 text-center">
+
             <p className="text-sm font-semibold uppercase tracking-widest text-green-800">
               NIPER-A MESS
             </p>
 
             <h2 className="mt-2 text-4xl font-bold">
-              Feedback
+              Student Feedback
             </h2>
 
             <p className="mx-auto mt-3 max-w-2xl text-gray-600">
-              Share your suggestions with the NIPER-A MESS Committee.
+              Share your suggestions and help us improve the
+              NIPER-A MESS.
             </p>
+
           </div>
+
+          {/* FEEDBACK GOOGLE FORM */}
 
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
 
@@ -791,7 +1014,9 @@ export default function Home() {
             </iframe>
 
           </div>
+
         </div>
+
       </section>
 
       {/* ================= ABOUT ================= */}
@@ -800,9 +1025,11 @@ export default function Home() {
         id="about"
         className="scroll-mt-32 border-t border-gray-200 bg-[#f7f8f4] py-16"
       >
+
         <div className="mx-auto max-w-6xl px-5">
 
           <div className="mb-10 text-center">
+
             <p className="text-sm font-semibold uppercase tracking-widest text-green-800">
               About
             </p>
@@ -810,9 +1037,12 @@ export default function Home() {
             <h2 className="mt-2 text-4xl font-bold">
               NIPER-A MESS
             </h2>
+
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
+
+            {/* SERVICE PROVIDER */}
 
             <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
 
@@ -825,6 +1055,8 @@ export default function Home() {
               </h3>
 
             </div>
+
+            {/* PROPRIETORS */}
 
             <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
 
@@ -847,7 +1079,9 @@ export default function Home() {
             </div>
 
           </div>
+
         </div>
+
       </section>
 
       {/* ================= FOOTER ================= */}
@@ -857,9 +1091,11 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-5 text-center">
 
           <div className="flex justify-center">
+
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-800 font-bold text-white">
               NM
             </div>
+
           </div>
 
           <h3 className="mt-4 text-lg font-bold">
@@ -876,7 +1112,9 @@ export default function Home() {
               MESS SERVICE PROVIDER
             </p>
 
-            <p>Dhiyana Hospitality</p>
+            <p>
+              Dhiyana Hospitality
+            </p>
 
             <p className="mt-4 font-semibold text-gray-700">
               PROPRIETORS
@@ -889,7 +1127,8 @@ export default function Home() {
           </div>
 
           <p className="mt-8 text-xs text-gray-400">
-            © {new Date().getFullYear()} NIPER-A MESS. All rights reserved.
+            © {new Date().getFullYear()} NIPER-A MESS.
+            All rights reserved.
           </p>
 
         </div>
