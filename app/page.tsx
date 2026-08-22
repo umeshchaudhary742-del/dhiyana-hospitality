@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const weeklyMenu = [
   {
@@ -74,30 +74,133 @@ const msMembers = [
   "Vanshika Meshram",
 ];
 
+const weekdayTimings = [
+  ["Morning", "8:00–10:00 AM"],
+  ["Afternoon", "12:30–2:30 PM"],
+  ["Evening", "4:30–6:00 PM"],
+  ["Dinner", "7:30–9:30 PM"],
+];
+
+const weekendTimings = [
+  ["Morning", "9:00–11:00 AM"],
+  ["Afternoon", "1:00–3:00 PM"],
+  ["Evening", "4:30–6:00 PM"],
+  ["Dinner", "8:00–9:30 PM"],
+];
+
+type MealName = "Breakfast" | "Lunch" | "Snacks" | "Dinner";
+
+const mealTimes = {
+  weekday: [
+    { name: "Breakfast" as MealName, start: 8 * 60, end: 10 * 60 },
+    { name: "Lunch" as MealName, start: 12 * 60 + 30, end: 14 * 60 + 30 },
+    { name: "Snacks" as MealName, start: 16 * 60 + 30, end: 18 * 60 },
+    { name: "Dinner" as MealName, start: 19 * 60 + 30, end: 21 * 60 + 30 },
+  ],
+  weekend: [
+    { name: "Breakfast" as MealName, start: 9 * 60, end: 11 * 60 },
+    { name: "Lunch" as MealName, start: 13 * 60, end: 15 * 60 },
+    { name: "Snacks" as MealName, start: 16 * 60 + 30, end: 18 * 60 },
+    { name: "Dinner" as MealName, start: 20 * 60, end: 21 * 60 + 30 },
+  ],
+};
+
+function getMenuForMeal(dayIndex: number, meal: MealName) {
+  const day = weeklyMenu[dayIndex];
+
+  if (meal === "Breakfast") return day.breakfast;
+  if (meal === "Lunch") return day.lunch;
+  if (meal === "Snacks") return day.snacks;
+  return day.dinner;
+}
+
 export default function Home() {
   const [active, setActive] = useState("home");
+
+  const [currentMeal, setCurrentMeal] = useState<{
+    name: string;
+    food: string;
+    status: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const updateMeal = () => {
+      const now = new Date();
+
+      const dayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
+
+      const isWeekend =
+        now.getDay() === 0 || now.getDay() === 6;
+
+      const schedule = isWeekend
+        ? mealTimes.weekend
+        : mealTimes.weekday;
+
+      const minutes =
+        now.getHours() * 60 + now.getMinutes();
+
+      const activeMeal = schedule.find(
+        (meal) =>
+          minutes >= meal.start &&
+          minutes <= meal.end
+      );
+
+      if (activeMeal) {
+        setCurrentMeal({
+          name: activeMeal.name,
+          food: getMenuForMeal(dayIndex, activeMeal.name),
+          status: "Serving Now",
+        });
+        return;
+      }
+
+      const upcoming = schedule.find(
+        (meal) => minutes < meal.start
+      );
+
+      if (upcoming) {
+        setCurrentMeal({
+          name: upcoming.name,
+          food: getMenuForMeal(dayIndex, upcoming.name),
+          status: "Upcoming Meal",
+        });
+        return;
+      }
+
+      // After dinner: show tomorrow's breakfast
+      const tomorrowIndex = (dayIndex + 1) % 7;
+
+      setCurrentMeal({
+        name: "Breakfast",
+        food: getMenuForMeal(tomorrowIndex, "Breakfast"),
+        status: "Tomorrow's Breakfast",
+      });
+    };
+
+    updateMeal();
+
+    const timer = setInterval(updateMeal, 60000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const goTo = (section: string) => {
     setActive(section);
 
-    const element = document.getElementById(section);
-
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
+    document.getElementById(section)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   return (
     <main className="min-h-screen bg-[#f7f8f4] text-gray-900">
 
       {/* ================= HEADER ================= */}
+
       <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
 
-          {/* LOGO / BRAND */}
           <button
             onClick={() => goTo("home")}
             className="flex items-center gap-3 text-left"
@@ -107,7 +210,7 @@ export default function Home() {
             </div>
 
             <div>
-              <h1 className="text-lg font-bold leading-tight">
+              <h1 className="text-lg font-bold">
                 NIPER-A MESS
               </h1>
 
@@ -117,22 +220,23 @@ export default function Home() {
             </div>
           </button>
 
-          {/* DESKTOP NAVIGATION */}
-          <nav className="hidden items-center gap-2 md:flex">
+          <nav className="hidden gap-1 md:flex">
             {[
               ["home", "Home"],
               ["menu", "Menu"],
+              ["timings", "Timings"],
               ["committee", "Committee"],
+              ["rules", "Rules"],
               ["feedback", "Feedback"],
               ["about", "About"],
             ].map(([id, label]) => (
               <button
                 key={id}
                 onClick={() => goTo(id)}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                className={`rounded-lg px-3 py-2 text-sm font-medium ${
                   active === id
                     ? "bg-green-100 text-green-800"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
                 {label}
@@ -141,20 +245,23 @@ export default function Home() {
           </nav>
         </div>
 
-        {/* MOBILE NAVIGATION */}
+        {/* MOBILE NAV */}
+
         <div className="overflow-x-auto border-t border-gray-100 md:hidden">
           <div className="flex min-w-max gap-2 px-4 py-2">
             {[
               ["home", "Home"],
               ["menu", "Menu"],
+              ["timings", "Timings"],
               ["committee", "Committee"],
+              ["rules", "Rules"],
               ["feedback", "Feedback"],
               ["about", "About"],
             ].map(([id, label]) => (
               <button
                 key={id}
                 onClick={() => goTo(id)}
-                className={`rounded-lg px-4 py-2 text-sm font-medium ${
+                className={`rounded-lg px-4 py-2 text-sm ${
                   active === id
                     ? "bg-green-100 text-green-800"
                     : "text-gray-600"
@@ -168,74 +275,97 @@ export default function Home() {
       </header>
 
       {/* ================= HOME ================= */}
-      <section
-        id="home"
-        className="scroll-mt-32"
-      >
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
 
-          {/* LEFT */}
+      <section id="home" className="scroll-mt-32">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 lg:grid-cols-2 lg:items-center lg:py-20">
+
           <div>
-            <div className="mb-6 inline-flex items-center rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-800">
+            <div className="mb-5 inline-flex rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-800">
               🍽️ NIPER-A Student Mess
             </div>
 
-            <h2 className="max-w-3xl text-5xl font-bold leading-tight tracking-tight text-gray-950 md:text-6xl">
+            <h2 className="max-w-3xl text-5xl font-bold leading-tight tracking-tight md:text-6xl">
               Better food starts with your feedback.
             </h2>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600">
-              Check the weekly menu, share your suggestions and help the
-              NIPER-A MESS Committee improve food quality and dining services.
+              Check today's meal, view the weekly menu, follow mess
+              timings and rules, and share your suggestions with the
+              NIPER-A MESS Committee.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <button
                 onClick={() => goTo("menu")}
-                className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-green-900"
+                className="rounded-xl bg-green-800 px-6 py-3 font-semibold text-white hover:bg-green-900"
               >
                 View Menu
               </button>
 
               <button
                 onClick={() => goTo("feedback")}
-                className="rounded-xl border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-900 transition hover:bg-gray-50"
+                className="rounded-xl border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50"
               >
                 Give Feedback
               </button>
             </div>
           </div>
 
-          {/* TODAY'S MEAL CARD */}
-          <div className="rounded-3xl border border-gray-200 bg-white p-7 shadow-sm">
+          {/* CURRENT / UPCOMING MEAL */}
+
+          <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
 
             <p className="text-sm font-semibold uppercase tracking-widest text-gray-500">
-              Weekly Menu
+              Today's Meal
             </p>
 
-            <div className="mt-6 rounded-2xl bg-green-50 p-6">
-              <div className="text-4xl">🍛</div>
+            {currentMeal ? (
+              <div className="mt-5 rounded-2xl bg-green-50 p-6">
 
-              <h3 className="mt-4 text-2xl font-bold">
-                NIPER-A MESS
-              </h3>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-3xl shadow-sm">
+                    🍛
+                  </div>
 
-              <p className="mt-2 text-gray-600">
-                Fresh meals • Student feedback • Better dining
-              </p>
+                  <span className="rounded-full bg-green-800 px-4 py-2 text-xs font-bold text-white">
+                    {currentMeal.status}
+                  </span>
+                </div>
 
-              <button
-                onClick={() => goTo("feedback")}
-                className="mt-6 w-full rounded-xl bg-green-800 py-3 font-semibold text-white hover:bg-green-900"
-              >
-                ⭐ Rate / Give Feedback
-              </button>
-            </div>
+                <p className="mt-6 text-sm font-semibold text-green-800">
+                  {currentMeal.name}
+                </p>
+
+                <h3 className="mt-2 text-2xl font-bold">
+                  {currentMeal.food}
+                </h3>
+
+                <button
+                  onClick={() => goTo("feedback")}
+                  className="mt-6 w-full rounded-xl bg-green-800 py-3 font-semibold text-white hover:bg-green-900"
+                >
+                  ⭐ Rate / Give Feedback
+                </button>
+              </div>
+            ) : (
+              <div className="mt-5 rounded-2xl bg-gray-50 p-6">
+                Loading today's meal...
+              </div>
+            )}
+
+            <button
+              onClick={() => goTo("timings")}
+              className="mt-4 w-full rounded-xl border border-gray-200 bg-white py-3 font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              🕐 View Mess Timings
+            </button>
           </div>
+
         </div>
       </section>
 
       {/* ================= MENU ================= */}
+
       <section
         id="menu"
         className="scroll-mt-32 border-t border-gray-200 bg-white py-16"
@@ -250,38 +380,20 @@ export default function Home() {
             <h2 className="mt-2 text-4xl font-bold">
               NIPER-A MESS Menu
             </h2>
-
-            <p className="mx-auto mt-3 max-w-2xl text-gray-600">
-              Weekly breakfast, lunch, snacks and dinner menu.
-            </p>
           </div>
 
-          {/* DESKTOP TABLE */}
-          <div className="hidden overflow-hidden rounded-2xl border border-gray-200 shadow-sm md:block">
+          <div className="hidden overflow-hidden rounded-2xl border border-gray-200 md:block">
             <div className="overflow-x-auto">
+
               <table className="w-full min-w-[1000px] border-collapse text-left">
 
                 <thead>
                   <tr className="bg-green-800 text-white">
-                    <th className="px-5 py-4 font-semibold">
-                      Day
-                    </th>
-
-                    <th className="px-5 py-4 font-semibold">
-                      Breakfast
-                    </th>
-
-                    <th className="px-5 py-4 font-semibold">
-                      Lunch
-                    </th>
-
-                    <th className="px-5 py-4 font-semibold">
-                      Snacks
-                    </th>
-
-                    <th className="px-5 py-4 font-semibold">
-                      Dinner
-                    </th>
+                    <th className="px-5 py-4">Day</th>
+                    <th className="px-5 py-4">Breakfast</th>
+                    <th className="px-5 py-4">Lunch</th>
+                    <th className="px-5 py-4">Snacks</th>
+                    <th className="px-5 py-4">Dinner</th>
                   </tr>
                 </thead>
 
@@ -299,19 +411,19 @@ export default function Home() {
                         {item.day}
                       </td>
 
-                      <td className="px-5 py-5 text-gray-700">
+                      <td className="px-5 py-5">
                         {item.breakfast}
                       </td>
 
-                      <td className="px-5 py-5 text-gray-700">
+                      <td className="px-5 py-5">
                         {item.lunch}
                       </td>
 
-                      <td className="px-5 py-5 text-gray-700">
+                      <td className="px-5 py-5">
                         {item.snacks}
                       </td>
 
-                      <td className="px-5 py-5 text-gray-700">
+                      <td className="px-5 py-5">
                         {item.dinner}
                       </td>
                     </tr>
@@ -322,7 +434,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* MOBILE MENU CARDS */}
+          {/* MOBILE MENU */}
+
           <div className="space-y-5 md:hidden">
             {weeklyMenu.map((item) => (
               <div
@@ -336,39 +449,31 @@ export default function Home() {
                 <div className="mt-4 space-y-4">
 
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                    <p className="text-xs font-bold uppercase text-gray-400">
                       Breakfast
                     </p>
-                    <p className="mt-1 text-gray-700">
-                      {item.breakfast}
-                    </p>
+                    <p className="mt-1">{item.breakfast}</p>
                   </div>
 
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                    <p className="text-xs font-bold uppercase text-gray-400">
                       Lunch
                     </p>
-                    <p className="mt-1 text-gray-700">
-                      {item.lunch}
-                    </p>
+                    <p className="mt-1">{item.lunch}</p>
                   </div>
 
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                    <p className="text-xs font-bold uppercase text-gray-400">
                       Snacks
                     </p>
-                    <p className="mt-1 text-gray-700">
-                      {item.snacks}
-                    </p>
+                    <p className="mt-1">{item.snacks}</p>
                   </div>
 
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                    <p className="text-xs font-bold uppercase text-gray-400">
                       Dinner
                     </p>
-                    <p className="mt-1 text-gray-700">
-                      {item.dinner}
-                    </p>
+                    <p className="mt-1">{item.dinner}</p>
                   </div>
 
                 </div>
@@ -379,10 +484,93 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ================= MESS TIMINGS ================= */}
+
+      <section
+        id="timings"
+        className="scroll-mt-32 border-t border-gray-200 bg-[#f7f8f4] py-16"
+      >
+        <div className="mx-auto max-w-6xl px-5">
+
+          <div className="mb-10 text-center">
+            <p className="text-sm font-semibold uppercase tracking-widest text-green-800">
+              1. Mess Timings
+            </p>
+
+            <h2 className="mt-2 text-4xl font-bold">
+              Meal Timings
+            </h2>
+
+            <p className="mt-3 text-gray-600">
+              Please follow the prescribed mess timings.
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2">
+
+            {/* WEEKDAYS */}
+
+            <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+
+              <h3 className="text-2xl font-bold text-green-800">
+                Weekdays
+              </h3>
+
+              <div className="mt-6 space-y-4">
+                {weekdayTimings.map(([meal, time]) => (
+                  <div
+                    key={meal}
+                    className="flex items-center justify-between rounded-xl bg-gray-50 px-5 py-4"
+                  >
+                    <span className="font-semibold">
+                      {meal}
+                    </span>
+
+                    <span className="font-medium text-green-800">
+                      {time}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+
+            {/* WEEKENDS */}
+
+            <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+
+              <h3 className="text-2xl font-bold text-green-800">
+                Weekends
+              </h3>
+
+              <div className="mt-6 space-y-4">
+                {weekendTimings.map(([meal, time]) => (
+                  <div
+                    key={meal}
+                    className="flex items-center justify-between rounded-xl bg-gray-50 px-5 py-4"
+                  >
+                    <span className="font-semibold">
+                      {meal}
+                    </span>
+
+                    <span className="font-medium text-green-800">
+                      {time}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* ================= COMMITTEE ================= */}
+
       <section
         id="committee"
-        className="scroll-mt-32 border-t border-gray-200 bg-[#f7f8f4] py-16"
+        className="scroll-mt-32 border-t border-gray-200 bg-white py-16"
       >
         <div className="mx-auto max-w-7xl px-5">
 
@@ -394,17 +582,14 @@ export default function Home() {
             <h2 className="mt-2 text-4xl font-bold">
               Mess Committee Members
             </h2>
-
-            <p className="mx-auto mt-3 max-w-2xl text-gray-600">
-              The student committee works with the mess service provider
-              to improve food and dining services.
-            </p>
           </div>
 
           <div className="grid gap-8 lg:grid-cols-2">
 
             {/* PHD */}
+
             <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+
               <div className="mb-6 flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-800 font-bold text-white">
                   PhD
@@ -414,10 +599,6 @@ export default function Home() {
                   <h3 className="text-xl font-bold">
                     PhD Representatives
                   </h3>
-
-                  <p className="text-sm text-gray-500">
-                    Mess Committee
-                  </p>
                 </div>
               </div>
 
@@ -437,10 +618,13 @@ export default function Home() {
                   </div>
                 ))}
               </div>
+
             </div>
 
             {/* MS */}
+
             <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+
               <div className="mb-6 flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-800 font-bold text-white">
                   MS
@@ -450,10 +634,6 @@ export default function Home() {
                   <h3 className="text-xl font-bold">
                     MS 2nd Year Representatives
                   </h3>
-
-                  <p className="text-sm text-gray-500">
-                    Mess Committee
-                  </p>
                 </div>
               </div>
 
@@ -473,14 +653,107 @@ export default function Home() {
                   </div>
                 ))}
               </div>
+
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* ================= RULES + FEES ================= */}
+
+      <section
+        id="rules"
+        className="scroll-mt-32 border-t border-gray-200 bg-[#f7f8f4] py-16"
+      >
+        <div className="mx-auto max-w-6xl px-5">
+
+          <div className="mb-10 text-center">
+            <p className="text-sm font-semibold uppercase tracking-widest text-green-800">
+              Mess Guidelines
+            </p>
+
+            <h2 className="mt-2 text-4xl font-bold">
+              Mess Discipline & Fees
+            </h2>
+          </div>
+
+          {/* DISCIPLINE */}
+
+          <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+
+            <h3 className="text-2xl font-bold text-green-800">
+              2. Mess Discipline – Seniors & Juniors
+            </h3>
+
+            <ul className="mt-6 space-y-3">
+
+              {[
+                "All students must strictly follow the prescribed mess timings.",
+                "Maintain a proper queue while taking food; no pushing or cutting the line.",
+                "Maintain discipline and keep noise levels under control.",
+                "Do not shout, abuse, tease, or disrespect other students.",
+                "Seniors must lead by example and guide juniors politely.",
+                "Juniors must respect seniors and follow the mess rules.",
+                "The same discipline rules apply equally to seniors and juniors.",
+                "No harassment, intimidation, arguments, or fights inside the mess.",
+                "Take only the required amount of food and avoid food wastage.",
+                "Do not occupy seats unnecessarily during busy meal times.",
+                "Any serious or repeated indiscipline should be reported to the mess in-charge/warden.",
+                "Everyone is expected to maintain a clean, respectful, and disciplined environment in the mess.",
+              ].map((rule, index) => (
+                <li
+                  key={index}
+                  className="flex gap-3 rounded-xl bg-gray-50 p-4"
+                >
+                  <span className="font-bold text-green-800">
+                    {index + 1}.
+                  </span>
+
+                  <span className="text-gray-700">
+                    {rule}
+                  </span>
+                </li>
+              ))}
+
+            </ul>
+          </div>
+
+          {/* FEES */}
+
+          <div className="mt-8 rounded-2xl border border-green-200 bg-green-50 p-8">
+
+            <p className="text-sm font-semibold uppercase tracking-widest text-green-800">
+              3. Mess Fees
+            </p>
+
+            <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+              <div>
+                <h3 className="text-3xl font-bold text-gray-950">
+                  ₹4,400
+                </h3>
+
+                <p className="mt-1 font-medium text-gray-600">
+                  Monthly Mess Fee per Student
+                </p>
+              </div>
+
+              <div className="max-w-xl text-gray-700">
+                Students are requested to pay the mess fee as early as
+                possible after receiving their stipend.
+                Timely payment helps ensure the smooth and uninterrupted
+                functioning of the mess.
+              </div>
+
+            </div>
           </div>
 
         </div>
       </section>
 
       {/* ================= FEEDBACK ================= */}
+
       <section
         id="feedback"
         className="scroll-mt-32 border-t border-gray-200 bg-white py-16"
@@ -498,13 +771,11 @@ export default function Home() {
 
             <p className="mx-auto mt-3 max-w-2xl text-gray-600">
               Share your suggestions with the NIPER-A MESS Committee.
-              Your feedback helps us improve the quality of food and
-              dining services.
             </p>
           </div>
 
-          {/* GOOGLE FORM */}
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+
             <iframe
               src="https://docs.google.com/forms/d/e/1FAIpQLSePYCWdwUELpbc6rE3nJ2ziPTW697xOeNU9FHZcLn7YfRl20A/viewform?embedded=true"
               width="100%"
@@ -517,17 +788,18 @@ export default function Home() {
             >
               Loading feedback form…
             </iframe>
-          </div>
 
+          </div>
         </div>
       </section>
 
-      {/* ================= ABOUT / SERVICE PROVIDER ================= */}
+      {/* ================= ABOUT ================= */}
+
       <section
         id="about"
         className="scroll-mt-32 border-t border-gray-200 bg-[#f7f8f4] py-16"
       >
-        <div className="mx-auto max-w-7xl px-5">
+        <div className="mx-auto max-w-6xl px-5">
 
           <div className="mb-10 text-center">
             <p className="text-sm font-semibold uppercase tracking-widest text-green-800">
@@ -541,8 +813,8 @@ export default function Home() {
 
           <div className="grid gap-6 md:grid-cols-2">
 
-            {/* SERVICE PROVIDER */}
             <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+
               <p className="text-sm font-semibold uppercase tracking-widest text-gray-500">
                 MESS SERVICE PROVIDER
               </p>
@@ -551,42 +823,36 @@ export default function Home() {
                 Dhiyana Hospitality
               </h3>
 
-              <p className="mt-3 leading-7 text-gray-600">
-                Dhiyana Hospitality is the service provider responsible
-                for NIPER-A MESS food and dining services.
-              </p>
             </div>
 
-            {/* PROPRIETORS */}
             <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
+
               <p className="text-sm font-semibold uppercase tracking-widest text-gray-500">
                 PROPRIETORS
               </p>
 
               <div className="mt-4 space-y-3">
 
-                <div className="rounded-xl bg-gray-50 px-5 py-4">
-                  <p className="font-semibold text-gray-900">
-                    Karan Singh Chauhan
-                  </p>
+                <div className="rounded-xl bg-gray-50 px-5 py-4 font-semibold">
+                  Karan Singh Chauhan
                 </div>
 
-                <div className="rounded-xl bg-gray-50 px-5 py-4">
-                  <p className="font-semibold text-gray-900">
-                    Kuldeep Singh
-                  </p>
+                <div className="rounded-xl bg-gray-50 px-5 py-4 font-semibold">
+                  Kuldeep Singh
                 </div>
 
               </div>
+
             </div>
 
           </div>
-
         </div>
       </section>
 
       {/* ================= FOOTER ================= */}
+
       <footer className="border-t border-gray-200 bg-white py-10">
+
         <div className="mx-auto max-w-7xl px-5 text-center">
 
           <div className="flex justify-center">
@@ -603,22 +869,22 @@ export default function Home() {
             Student Mess Portal
           </p>
 
-          <div className="mx-auto mt-6 max-w-xl text-sm text-gray-500">
+          <div className="mt-6 text-sm text-gray-500">
+
             <p className="font-semibold text-gray-700">
               MESS SERVICE PROVIDER
             </p>
 
-            <p className="mt-1">
-              Dhiyana Hospitality
-            </p>
+            <p>Dhiyana Hospitality</p>
 
             <p className="mt-4 font-semibold text-gray-700">
               PROPRIETORS
             </p>
 
-            <p className="mt-1">
+            <p>
               Karan Singh Chauhan &amp; Kuldeep Singh
             </p>
+
           </div>
 
           <p className="mt-8 text-xs text-gray-400">
@@ -626,6 +892,7 @@ export default function Home() {
           </p>
 
         </div>
+
       </footer>
 
     </main>
