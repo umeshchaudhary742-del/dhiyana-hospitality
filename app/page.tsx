@@ -63,7 +63,7 @@ const phdMembers = [
 ];
 
 const msMembers = [
-  "Jantin Katiyar",
+  "Jatin Katiyar",
   "Tanmay Patil",
   "Ayush Chandra",
   "Harsh Patel",
@@ -72,6 +72,7 @@ const msMembers = [
   "Yash Patel",
   "Aniket Roy",
   "Vanshika Meshram",
+  "Shivraj Yadav",
 ];
 
 const weekdayTimings = [
