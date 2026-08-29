@@ -354,7 +354,7 @@ export default function Home() {
               🍽️ NIPER-A Student Mess
             </div>
             <img
-  src="/niper-a-mess-committee.png"
+  src="/niper-a-mess-committee2.png"
   alt="NIPER-A Mess Committee"
   className="mb-8 w-full rounded-2xl object-cover shadow-lg"
 />
