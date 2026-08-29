@@ -744,13 +744,21 @@ export default function Home() {
                       className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3"
                     >
 
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-800">
-                        {index + 1}
-                      </span>
+                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-800">
+  {index + 1}
+</span>
 
-                      <span className="font-medium">
-                        {member}
-                      </span>
+{member === "Umesh Chaudhary" && (
+  <img
+    src="/committee/umesh-chaudhary.png"
+    alt="Umesh Chaudhary"
+    className="h-10 w-10 rounded-full object-cover"
+  />
+)}
+
+<span className="font-medium">
+  {member}
+</span>
 
                     </div>
 
