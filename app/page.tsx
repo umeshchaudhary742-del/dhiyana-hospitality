@@ -353,6 +353,11 @@ export default function Home() {
             <div className="mb-5 inline-flex rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-800">
               🍽️ NIPER-A Student Mess
             </div>
+            <img
+  src="/niper-a-mess-committee.png"
+  alt="NIPER-A Mess Committee"
+  className="mb-8 w-full rounded-2xl object-cover shadow-lg"
+/>
 
             <h2 className="max-w-3xl text-5xl font-bold leading-tight tracking-tight md:text-6xl">
               Better food starts with your feedback.
