@@ -43,7 +43,7 @@ const weeklyMenu = [
     breakfast: "Tea / Coffee / Milk • Dosa",
     lunch: "Rajma masala, Kundru, Tur daal, Roti, Jeera Rice, Butter milk, Salad",
     snacks: "Tea/ coffee / Milk • Mix bhajiya/ Onion Bhajiya",
-    dinner: "Turai, mix dal, jeera Ricce, Papad, Butter milk",
+    dinner: "Turai, mix dal, jeera Ricce, Papad, Butter milk or dal baati",
   },
   {
     day: "Sunday",
@@ -57,7 +57,7 @@ const weeklyMenu = [
 const phdMembers = [
   "Umesh Chaudhary",
   "Rohit Saini",
-  "LN Dhakd",
+  "LN Dhakad",
   "Sai Eswar",
   "Jourawar Singh",
 ];
